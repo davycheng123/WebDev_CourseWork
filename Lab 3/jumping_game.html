@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Jumping Game</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- This is the font returned from Google font -->
+    <link href="https://fonts.googleapis.com/css2?family=Dosis:wght@700&display=swap" rel="stylesheet">
+
+    <style>
+    /* Style to make the svg fit in the browser */
+    body { padding: 0; margin: 0; }
+    svg  { width: 100%; height: auto; }
+
+    /* The container moves the text to the middle of the screen */
+    #gameover-container {
+        transform: translate(500px,200px);
+    }
+    #gameover {
+        font-family: Dosis, sans-serif;
+        animation-name: none;
+        animation-timing-function: linear;
+        animation-iteration-count: 1;
+        animation-duration: 1s;
+        display: none;
+    }
+
+    @keyframes cloud-animation {
+        from { transform: translateX(1000px); }
+        to   { transform: translateX(-120px); }
+    }
+
+    @keyframes player-animation {
+        0% { transform: translateY(0px); }
+        50%   { transform: translateY(-80px); }
+        100% { transform: translateY(0px); }
+    }
+
+    @keyframes gameover-animation {
+        from { transform: rotate(0); }
+        to { transform: rotate(360deg); }
+    }
+
+    #player {
+        animation-name: none;
+        animation-timing-function: linear;
+        animation-iteration-count: 1;
+        animation-duration: 1s;
+    }
+
+    #obstacle {
+        animation-name: none;
+        animation-timing-function: linear;
+        animation-iteration-count: 1;
+        animation-duration: 4s;
+        display: none;
+    }
+
+    .cloud {
+        animation-name: cloud-animation;
+        animation-timing-function: linear;
+        animation-iteration-count: infinite;
+        animation-duration: 10s;
+    }
+
+    #cloud1 {
+        animation-delay: -8s;
+    }
+
+    #cloud2 {
+        animation-delay: -3s;
+    }
+
+    </style>
+    <script>
+    // Check whether the game is over if the player is near the obstacle
+    function checkGameover() {
+
+        // You need to keep on checking for the gameover situation here
+        let isGameover = false;
+
+        // Read the transform property of the player and obstacle
+        let hole_x = parseFloat($("#obstacle").css("transform").split(', ')[4]);
+        let is_player_flying = ($("#player").css("animationName") != 'none');
+
+        // Extract the appropriate numbers
+        // Compare the numbers for the gameover situation
+        if((hole_x<50) && (hole_x>-50) && (!is_player_flying))
+            isGameover = true;
+
+        // Request to check again
+        if(!isGameover) 
+            setTimeout(checkGameover, 100);
+        else {
+            $(".cloud").css("animation-play-state", "paused");
+            $("#obstacle").css("animation-play-state", "paused");
+            $("#player").css("animation-play-state", "paused");
+            $("#gameover").fadeIn();
+            $("#gameover").css("animationName", "gameover-animation")
+        }
+
+    }
+
+    // Make an obstacle by starting the obstacle animation
+    function makeObstacle() {
+
+        // You need to show the obstacle and start the animation here
+        obstacle = document.getElementById("obstacle");
+        obstacle.style.animationName = "cloud-animation";
+        obstacle.style.display = "inline";
+
+    }
+
+    // Make the player jump by starting the player animation
+    function jump() {
+        // You need to start the player jumping animation here
+        let player = document.getElementById("player");
+        player.style.animationName = "player-animation"
+    }
+
+    $(document).ready(function () {
+        // Handle the spacebar key for controlling the player
+        $(document).on("keydown", function(e) {
+            // The player jumps if the spacebar key is down
+            if (e.keyCode == 32)
+                jump();
+        });
+
+        // The obstacle animation has finished
+        $("#obstacle").on("animationend", function() {
+
+            // You need to hide the obstacle and stop the animation here
+            obstacle.style.animationName = "";
+            obstacle.style.display = "none";
+
+            // You will make another obstacle later
+            setTimeout(makeObstacle, Math.random() * 1000);
+
+        });
+
+        // The player animation has finished
+        $("#player").on("animationend", function() {
+            // You need to stop the animation here
+            player.style.animationName = ""
+
+        });
+
+        // Start the obstacle animation
+        setTimeout(makeObstacle, Math.random() * 2000);
+
+        // Start the game over checking
+        setTimeout(checkGameover, 100);
+    });
+    </script>
+</head>
+<body>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 400">
+        <linearGradient y2="1" x2="0" id="sky">
+            <stop offset="0" stop-color="#009de6"/>
+            <stop offset="1" stop-color="#e6f7ff"/>
+        </linearGradient>
+        <rect x="0" y="0" width="1000" height="400" fill="url(#sky)"/>
+
+
+        <linearGradient y2="1" x2="0" id="ground_color">
+            <stop offset="0" stop-color="#cc6666"/>
+            <stop offset="1" stop-color="#732626"/>
+        </linearGradient>
+        <rect x="0" y="300" width="1000" height="100" fill="url(#ground_color)"/>
+
+        <linearGradient id="icloud_2_" gradientUnits="userSpaceOnUse" x1="22.5052" y1="128.8704" x2="227.3053" y2="128.8704">
+            <stop  offset="0" style="stop-color:#95DCF6"/>
+            <stop  offset="1" style="stop-color:#507EFF"/>
+        </linearGradient>
+
+        <g id="cloud1" class="cloud">  
+            <path d="m126.3,71.37c0,10.86 -9.4,19.73 -20.92,19.73l-62.82,0c-12.14,0 -22.06,-9.31 -22.06,-20.8c0,-8.28 5.32,-15.74 13.33,-19c0.83,-8.14 7.9,-14.23 16.43,-14.23c2.43,0 4.75,0.49 6.92,1.46c5.01,-8.53 14.62,-13.93 25.06,-13.93c15.81,0 28.67,12.13 28.67,27.04c0,0.24 0,0.49 0,0.73c8.99,2.29 15.39,10.04 15.39,19z" fill="url(#icloud_2_)" id="icloud"/>
+        </g>
+
+        <g id="cloud2" class="cloud">
+            <path d="m126.3,71.37c0,10.86 -9.4,19.73 -20.92,19.73l-62.82,0c-12.14,0 -22.06,-9.31 -22.06,-20.8c0,-8.28 5.32,-15.74 13.33,-19c0.83,-8.14 7.9,-14.23 16.43,-14.23c2.43,0 4.75,0.49 6.92,1.46c5.01,-8.53 14.62,-13.93 25.06,-13.93c15.81,0 28.67,12.13 28.67,27.04c0,0.24 0,0.49 0,0.73c8.99,2.29 15.39,10.04 15.39,19z" fill="url(#icloud_2_)" id="icloud"/>
+        </g>
+        
+        <g id="obstacle">
+            <use xlink:href="#A" x="10" y="305"/><symbol id="A" overflow="visible"><g stroke="none" fill-rule="nonzero"><use xlink:href="#C" fill="#3f3f3f"/><use xlink:href="#D" fill="#9b9b9a"/></g><g stroke-linejoin="miter" fill="none" stroke-width="4.167"><use xlink:href="#C"/><use xlink:href="#D"/></g></symbol><defs ><path id="C" d="M0 28.125C0 12.544 30.198 0 67.708 0s67.708 12.544 67.708 28.125S105.219 56.25 67.708 56.25 0 43.706 0 28.125z"/><path id="D" d="M67.708 20.833c28.167 0 52.306 6.881 62.51 16.667 3.323-3.208 5.198-6.725 5.198-10.417C135.417 12.125 105.104 0 67.708 0S0 12.125 0 27.083c0 3.692 1.875 7.208 5.198 10.417 10.204-9.785 34.346-16.667 62.51-16.667z"/></defs>
+        </g>
+        
+        <g id="player">     // style="transform: translate(200px, 200px)"
+            <path d="m18.93,288.84c0,0 12.46,-33.66 45.67,-34.74c6.65,-0.21 19.21,-0.41 23.12,1.85c4.91,3.18 13.52,12.59 13.52,12.59c0,0 30.96,-0.61 31.66,20.3c0,3.26 -113.97,0 -113.97,0zm0,0" fill="rgb(21.176471%,35.686275%,50.980392%)" fill-rule="nonzero" id="svg_2"/>
+            <path d="m131.9,295.53l-111.8,0c-2.26,0 -4.1,-1.85 -4.1,-4.12c0,-2.27 1.84,-4.12 4.1,-4.12l111.8,0c2.26,0 4.1,1.85 4.1,4.12c0,2.27 -1.84,4.12 -4.1,4.12zm0,0" fill="rgb(18.431373%,29.019608%,42.745098%)" fill-rule="nonzero" id="svg_3"/>
+            <path d="m30.1,292.75c0.07,-3.93 3.32,-7.05 7.26,-6.99c3.95,0.07 7.09,3.31 7.02,7.24c-0.07,3.93 -3.32,7.06 -7.26,6.99c-3.95,-0.07 -7.09,-3.31 -7.02,-7.24zm0,0" fill="rgb(89.019608%,94.117647%,96.078431%)" fill-rule="nonzero" id="svg_4"/>
+            <path d="m37.17,282.36c-5.73,0 -10.37,4.62 -10.37,10.33c0,5.7 4.64,10.33 10.37,10.33c5.72,0 10.37,-4.63 10.37,-10.33c0,-5.71 -4.65,-10.33 -10.37,-10.33zm0,16.8c-3.59,0 -6.49,-2.89 -6.49,-6.47c0,-3.58 2.9,-6.47 6.49,-6.47c3.58,0 6.49,2.89 6.49,6.47c0,3.57 -2.91,6.47 -6.49,6.47zm0,0" fill="rgb(9.411765%,16.078431%,25.490196%)" fill-rule="nonzero" id="svg_5"/>
+            <path d="m111.18,292.75c0.07,-3.93 3.32,-7.05 7.26,-6.99c3.95,0.07 7.08,3.31 7.02,7.24c-0.07,3.93 -3.32,7.06 -7.26,6.99c-3.95,-0.07 -7.09,-3.31 -7.02,-7.24zm0,0" fill="rgb(89.019608%,94.117647%,96.078431%)" fill-rule="nonzero" id="svg_6"/>
+            <path d="m118.25,282.36c-5.73,0 -10.37,4.62 -10.37,10.33c0,5.7 4.64,10.33 10.37,10.33c5.72,0 10.36,-4.63 10.36,-10.33c0,-5.71 -4.64,-10.33 -10.36,-10.33zm0,16.8c-3.59,0 -6.5,-2.89 -6.5,-6.47c0,-3.58 2.91,-6.47 6.5,-6.47c3.58,0 6.49,2.89 6.49,6.47c0,3.57 -2.91,6.47 -6.49,6.47zm0,0" fill="rgb(9.411765%,16.078431%,25.490196%)" fill-rule="nonzero" id="svg_7"/>
+            <path d="m94.87,269.6c-2.89,-2.99 -7.09,-7.12 -9.78,-8.95c-0.1,-0.07 -0.2,-0.13 -0.32,-0.17c-0.83,-0.31 -3.94,-1.14 -13.25,-1.14c-2.04,0 -4.24,0.04 -6.75,0.12c-9.59,0.31 -18.16,3.69 -25.58,10.06c-1.04,0.89 -0.38,2.61 0.99,2.61l53.61,0c1.32,0 1.99,-1.58 1.08,-2.53zm0,0" fill="rgb(89.019608%,94.117647%,96.078431%)" fill-rule="nonzero" id="svg_8"/>
+            <path d="m61.82,257.29l6.29,0l0,19.14l-6.29,0l0,-19.14zm0,0" fill="rgb(21.176471%,35.686275%,50.980392%)" fill-rule="nonzero" id="svg_9"/>
+        </g>
+        
+        <!-- The game over text -->
+        <g id="gameover-container">
+            <text id="gameover" x="0" y="0" fill="red"
+                  font-size="80px" text-anchor="middle">Game Over</text>
+        </g>
+    </svg>
+
+
+    
+</html>
